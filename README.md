@@ -6,6 +6,7 @@ Please note: This project is a proof of concept on how to use Camunda API and BP
 
 ## Features developed in BpmnEngine.Application
 
+- <TargetFramework>**net6.0**</TargetFramework>
 - Support for **External Service Tasks** with variables
 - Support for external process start-up procedures
 - Support for message handling via the API to broadcast events
