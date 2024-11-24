@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_12ra414" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.12.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="TestProcess" name="Test" isExecutable="true" camunda:versionTag="beta">
+    <bpmn:startEvent id="Start" name="Nowy wniosek">
+      <bpmn:outgoing>Flow_18fx4e7</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="End" name="Wniosek zatwierdzony">
+      <bpmn:incoming>Flow_1sbr5c5</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_18fx4e7" sourceRef="Start" targetRef="Gateway_1m1j60v" />
+    <bpmn:endEvent id="End2" name="Wniosek nie zatwierdzony">
+      <bpmn:incoming>Flow_18dbsw6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_18dbsw6" sourceRef="VerificationEvent" targetRef="End2" />
+    <bpmn:intermediateCatchEvent id="VerificationEvent" name="Done">
+      <bpmn:incoming>Flow_0m54w62</bpmn:incoming>
+      <bpmn:outgoing>Flow_18dbsw6</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1xdo447" messageRef="Message_1plg9ip" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:intermediateCatchEvent id="Event_1s0p4km" name="Not done">
+      <bpmn:incoming>Flow_04xt6po</bpmn:incoming>
+      <bpmn:outgoing>Flow_1sbr5c5</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0a8zwdb" messageRef="Message_1r9bkm4" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_1sbr5c5" sourceRef="Event_1s0p4km" targetRef="End" />
+    <bpmn:sequenceFlow id="Flow_04xt6po" sourceRef="Gateway_1m1j60v" targetRef="Event_1s0p4km" />
+    <bpmn:sequenceFlow id="Flow_0m54w62" sourceRef="Gateway_1m1j60v" targetRef="VerificationEvent" />
+    <bpmn:eventBasedGateway id="Gateway_1m1j60v">
+      <bpmn:incoming>Flow_18fx4e7</bpmn:incoming>
+      <bpmn:outgoing>Flow_04xt6po</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0m54w62</bpmn:outgoing>
+    </bpmn:eventBasedGateway>
+  </bpmn:process>
+  <bpmn:message id="Message_1plg9ip" name="VERIFICATIONDONE" />
+  <bpmn:message id="Message_1r9bkm4" name="VERIFICATIONNOTDONE" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="TestProcess">
+      <bpmndi:BPMNEdge id="Flow_18fx4e7_di" bpmnElement="Flow_18fx4e7">
+        <di:waypoint x="188" y="110" />
+        <di:waypoint x="325" y="110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18dbsw6_di" bpmnElement="Flow_18dbsw6">
+        <di:waypoint x="488" y="200" />
+        <di:waypoint x="672" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1sbr5c5_di" bpmnElement="Flow_1sbr5c5">
+        <di:waypoint x="488" y="110" />
+        <di:waypoint x="672" y="110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04xt6po_di" bpmnElement="Flow_04xt6po">
+        <di:waypoint x="375" y="110" />
+        <di:waypoint x="452" y="110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0m54w62_di" bpmnElement="Flow_0m54w62">
+        <di:waypoint x="350" y="135" />
+        <di:waypoint x="350" y="200" />
+        <di:waypoint x="452" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="Start">
+        <dc:Bounds x="152" y="92" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="135" y="135" width="71" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0y35wnp_di" bpmnElement="End2">
+        <dc:Bounds x="672" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="660" y="225" width="64" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1s30ivg_di" bpmnElement="Event_1s0p4km">
+        <dc:Bounds x="452" y="92" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="448" y="135" width="45" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_05wytv3_di" bpmnElement="End">
+        <dc:Bounds x="672" y="92" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="659" y="135" width="64" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0s61c1z_di" bpmnElement="VerificationEvent">
+        <dc:Bounds x="452" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="457" y="225" width="27" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_141311o_di" bpmnElement="Gateway_1m1j60v">
+        <dc:Bounds x="325" y="85" width="50" height="50" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

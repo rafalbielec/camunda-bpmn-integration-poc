@@ -1,0 +1,80 @@
+﻿@using BpmnEngine.Services
+@model MessagesViewModel
+@{
+    const string title = "Wysyłanie wiadomości do Camunda Engine";
+    Model.PageTitle = title;
+}
+
+<div class="text-center">
+    <h1 class="display-4">@title</h1>
+</div>
+
+<br/>
+
+<div class="pt-3">
+    
+    <form asp-controller="Forms" asp-action="Messages" method="post">
+        <div class="row m-1 text-center">
+            <div class="col-3 offset-1">
+                <label asp-for="BusinessKey" class="form-label"></label>
+            </div>
+            <div class="col-5">
+                <input asp-for="BusinessKey" class="form-control" autocomplete="off"/>
+            </div>
+            <div class="col-3">
+                <span asp-validation-for="BusinessKey" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row m-1 text-center">
+            <div class="col-3 offset-1">
+                <label asp-for="MessageContent" class="form-label"></label>
+            </div>
+            <div class="col-5">
+                <input asp-for="MessageContent" class="form-control" autocomplete="off"/>
+            </div>
+            <div class="col-3">
+                <span asp-validation-for="MessageContent" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row m-3">
+            <div class="col-10 offset-1">
+                <table class="table table-striped">
+                    <tr>
+                        <td>@ServicesConstants.Messages.ManagerApproved</td>
+                        <td>Kierownik zatwierdził wniosek</td>
+                    </tr>
+                    <tr>
+                        <td>@ServicesConstants.Messages.ManagerRejected</td>
+                        <td>Kierownik odrzucił wniosek</td>
+                    </tr>
+                    <tr>
+                        <td>@ServicesConstants.Messages.DirectorApproved</td>
+                        <td>Dyrektor zatwierdził wniosek</td>
+                    </tr>
+                    <tr>
+                        <td>@ServicesConstants.Messages.DirectorRejected</td>
+                        <td>Dyrektor odrzucił wniosek</td>
+                    </tr>
+                    <tr>
+                        <td>@ServicesConstants.Messages.VerificationDone</td>
+                        <td>Weryfikacja BOU zrobiona</td>
+                    </tr>
+                    <tr>
+                        <td>@ServicesConstants.Messages.BouDirectorApproved</td>
+                        <td>Dyrektor BOU zatwierdził wniosek</td>
+                    </tr>
+                    <tr>
+                        <td>@ServicesConstants.Messages.BouDirectorRejected</td>
+                        <td>Dyrektor BOU odrzucił wniosek</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="row m-3">
+            <div class="col-3 offset-9">
+                <button class="btn btn-success" type="submit">Wyślij</button>
+            </div>
+        </div>
+    </form>
+
+</div>

@@ -1,0 +1,94 @@
+﻿@using BpmnEngine.Services
+@model DecisionViewModel
+@{
+    const string title = "Decyzja na temat wniosku";
+    Model.PageTitle = title;
+}
+
+<div class="text-center">
+    <h1 class="display-4">@title</h1>
+</div>
+
+<br/>
+
+<div class="pt-3 text-center">
+
+    <div class="row">
+        <div class="col-6">
+            <strong>Numer wniosku</strong>
+        </div>
+        <div class="col-6">
+            @Model.BusinessKey
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-6">
+            <strong>Numer prośby</strong>
+        </div>
+        <div class="col-6">
+            @Model.Id
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-6">
+            <strong>Identyfikator systemowy</strong>
+        </div>
+        <div class="col-6">
+            @Model.ProcessInstanceId
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-6">
+            <strong>Camunda topic</strong>
+        </div>
+        <div class="col-6">
+            @Model.TopicName
+        </div>
+    </div>
+    
+    @foreach (var v in Model.Variables)
+    {
+        <div class="row">
+            <div class="col-6">
+                <strong>@v.Key</strong>
+            </div>
+            <div class="col-6">
+                @v.Value
+            </div>
+        </div>
+    }
+    
+    <div class="row m-3">
+        
+        <div class="col-6">
+            @if (Model.TopicName != ServicesConstants.Topics.Verification)
+            {
+                <form asp-controller="Process" asp-action="Reject" method="post">
+                    <input asp-for="BusinessKey" type="hidden"/>
+                    <input asp-for="Id" type="hidden"/>
+                    <input asp-for="TopicName" type="hidden"/>
+                    <input asp-for="ProcessInstanceId" type="hidden"/>
+                    <input asp-for="Accepted" type="hidden" value="false"/>
+
+                    <button class="btn btn-danger" type="submit">Odrzuć wniosek</button>
+                </form>
+            }
+        </div>
+        
+        <div class="col-6">
+            <form asp-controller="Process" asp-action="Accept" method="post">
+                <input asp-for="BusinessKey" type="hidden"/>
+                <input asp-for="Id" type="hidden"/>
+                <input asp-for="TopicName" type="hidden"/>
+                <input asp-for="ProcessInstanceId" type="hidden"/>
+                <input asp-for="Accepted" type="hidden" value="true"/>
+
+                <button class="btn btn-success" type="submit">Zaakceptuj wniosek</button>
+            </form>
+        </div>
+    </div>
+</div>
+

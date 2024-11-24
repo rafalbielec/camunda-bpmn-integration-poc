@@ -1,0 +1,44 @@
+﻿@model LoginViewModel
+@{
+    Model.PageTitle = "Start";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Integracja z Camunda Engine</h1>
+    <img src="img/logo.png" alt="" class="logo"/>
+</div>
+
+@if (Context.User?.Identity?.IsAuthenticated != true)
+{
+    <div class="text-center pt-3">
+        <form asp-controller="Home" asp-action="Index" method="post">
+            <div class="row m-1">
+                <div class="col-3 offset-1">
+                    <label asp-for="UserName" class="form-label"></label>
+                </div>
+                <div class="col-4">
+                    <input asp-for="UserName" class="form-control" autocomplete="off"/>
+                </div>
+                <div class="col-4">
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row m-1">
+                <div class="col-3 offset-1">
+                    <label asp-for="Password" class="form-label"></label>
+                </div>
+                <div class="col-4">
+                    <input asp-for="Password" class="form-control" autocomplete="off" type="password"/>
+                </div>
+                <div class="col-4">
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row m-3">
+                <div class="col-3 offset-9">
+                    <button class="btn btn-success" type="submit">Zaloguj użytkownika</button>
+                </div>
+            </div>
+        </form>
+    </div>
+}

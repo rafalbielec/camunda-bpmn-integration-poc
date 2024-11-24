@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_03hms0s" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.12.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="FormHandlingExtended" name="Obsługa Wniosku" isExecutable="true" camunda:versionTag="beta" camunda:isStartableInTasklist="false">
+    <bpmn:startEvent id="Start" name="Nowy wniosek">
+      <bpmn:outgoing>StartFlow</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="ManagerChecks" name="Prośba o akceptację przez kierownika" camunda:type="external" camunda:topic="manager-checks" camunda:taskPriority="2">
+      <bpmn:incoming>FlowEmployee</bpmn:incoming>
+      <bpmn:outgoing>Flow_0xck016</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="JobPositionAssessmentGateway" name="Podział na stanowiska">
+      <bpmn:incoming>StartFlow</bpmn:incoming>
+      <bpmn:outgoing>FlowEmployee</bpmn:outgoing>
+      <bpmn:outgoing>FlowManager</bpmn:outgoing>
+      <bpmn:outgoing>DirectorAppliedForm</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="StartFlow" sourceRef="Start" targetRef="JobPositionAssessmentGateway" />
+    <bpmn:sequenceFlow id="FlowEmployee" name="Pracownik wysłał formularz" sourceRef="JobPositionAssessmentGateway" targetRef="ManagerChecks">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${position == 'employee'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="DirectorChecks" name="Prośba o akceptację przez dyrektora" camunda:type="external" camunda:topic="director-checks" camunda:taskPriority="2">
+      <bpmn:incoming>FlowManager</bpmn:incoming>
+      <bpmn:incoming>Flow_18n199a</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ui2o1f</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="FlowManager" name="Kierownik wysłał formularz" sourceRef="JobPositionAssessmentGateway" targetRef="DirectorChecks">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${position == 'manager'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:intermediateCatchEvent id="InitalFormApprovedByDirectorEvent" name="Dyrektor zatwierdził wniosek">
+      <bpmn:incoming>Flow_0r15qn0</bpmn:incoming>
+      <bpmn:outgoing>Flow_0q6p28s</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_14mv1bm" messageRef="Message_1g7ato3" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:intermediateCatchEvent id="InitalFormApprovedByManagerEvent" name="Kierownik zatwierdził wniosek">
+      <bpmn:incoming>Flow_15sa2my</bpmn:incoming>
+      <bpmn:outgoing>Flow_18n199a</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0adjkrd" messageRef="Message_16k745h" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:serviceTask id="InformSenderAboutRejection" name="Poinformuj wnioskodawcę o odrzuceniu" camunda:type="external" camunda:topic="inform-sender-rejected">
+      <bpmn:incoming>Flow_1oq0zjv</bpmn:incoming>
+      <bpmn:incoming>Flow_0enct9g</bpmn:incoming>
+      <bpmn:incoming>Flow_1pd2b11</bpmn:incoming>
+      <bpmn:incoming>Flow_1omunwa</bpmn:incoming>
+      <bpmn:outgoing>Flow_0otjnz0</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndWithRejection" name="Wniosek odrzucony">
+      <bpmn:incoming>Flow_0otjnz0</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_18n199a" name="Przesłanie do dyrektora" sourceRef="InitalFormApprovedByManagerEvent" targetRef="DirectorChecks" />
+    <bpmn:serviceTask id="SmeChecks" name="Prośba o weryfikację przez pracownika BOU" camunda:type="external" camunda:topic="bou-verification" camunda:taskPriority="1">
+      <bpmn:incoming>Flow_0q6p28s</bpmn:incoming>
+      <bpmn:incoming>DirectorAppliedForm</bpmn:incoming>
+      <bpmn:outgoing>Flow_1l4i69q</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0q6p28s" sourceRef="InitalFormApprovedByDirectorEvent" targetRef="SmeChecks" />
+    <bpmn:intermediateCatchEvent id="VerificationCompleteEvent" name="Weryfikacja zakończona">
+      <bpmn:incoming>Flow_1l4i69q</bpmn:incoming>
+      <bpmn:outgoing>Flow_1y0xya6</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_06xfjnk" messageRef="Message_06xhhw0" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_1l4i69q" sourceRef="SmeChecks" targetRef="VerificationCompleteEvent" />
+    <bpmn:sequenceFlow id="Flow_1y0xya6" sourceRef="VerificationCompleteEvent" targetRef="BOUDirectorChecksVerifiedForm" />
+    <bpmn:serviceTask id="BOUDirectorChecksVerifiedForm" name="Prośba o akceptacje przez dyrektora BOU" camunda:type="external" camunda:topic="bou-director-checks">
+      <bpmn:incoming>Flow_1y0xya6</bpmn:incoming>
+      <bpmn:outgoing>Flow_1gzc23a</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:intermediateCatchEvent id="BOUDirectorAcceptedVerifiedFormEvent" name="Dyrektor BOU zaakceptował wniosek">
+      <bpmn:incoming>Flow_1ligqxt</bpmn:incoming>
+      <bpmn:outgoing>Flow_1vzowy9</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_10p3qt1" messageRef="Message_1drapzz" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_1vzowy9" sourceRef="BOUDirectorAcceptedVerifiedFormEvent" targetRef="InformAboutAcceptedForm" />
+    <bpmn:serviceTask id="InformAboutAcceptedForm" name="Poinformuj wnioskodawcę o akceptacji" camunda:type="external" camunda:topic="inform-sender-accepted">
+      <bpmn:incoming>Flow_1vzowy9</bpmn:incoming>
+      <bpmn:outgoing>Flow_086rbde</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="ProcessEnded" name="Proces zakończony">
+      <bpmn:incoming>Flow_086rbde</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_086rbde" sourceRef="InformAboutAcceptedForm" targetRef="ProcessEnded" />
+    <bpmn:sequenceFlow id="DirectorAppliedForm" name="Dyrektor wysłał wniosek" sourceRef="JobPositionAssessmentGateway" targetRef="SmeChecks">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${position == 'director'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:intermediateCatchEvent id="InitalFormRejectedByDirectorEvent" name="Dyrektor odrzucił wniosek">
+      <bpmn:incoming>Flow_104hskd</bpmn:incoming>
+      <bpmn:outgoing>Flow_1oq0zjv</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1oos62h" messageRef="Message_03whvzy" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_0otjnz0" sourceRef="InformSenderAboutRejection" targetRef="EndWithRejection" />
+    <bpmn:sequenceFlow id="Flow_1oq0zjv" sourceRef="InitalFormRejectedByDirectorEvent" targetRef="InformSenderAboutRejection" />
+    <bpmn:sequenceFlow id="Flow_0r15qn0" sourceRef="DirectrorGateway" targetRef="InitalFormApprovedByDirectorEvent" />
+    <bpmn:sequenceFlow id="Flow_104hskd" sourceRef="DirectrorGateway" targetRef="InitalFormRejectedByDirectorEvent" />
+    <bpmn:intermediateCatchEvent id="InitalFormRejectedByManagerEvent" name="Kierownik odrzucił wniosek">
+      <bpmn:incoming>Flow_110w11t</bpmn:incoming>
+      <bpmn:outgoing>Flow_0enct9g</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1chuhk8" messageRef="Message_03k8ubt" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_0enct9g" sourceRef="InitalFormRejectedByManagerEvent" targetRef="InformSenderAboutRejection" />
+    <bpmn:sequenceFlow id="Flow_0xck016" sourceRef="ManagerChecks" targetRef="MgrGateway" />
+    <bpmn:sequenceFlow id="Flow_15sa2my" sourceRef="MgrGateway" targetRef="InitalFormApprovedByManagerEvent" />
+    <bpmn:sequenceFlow id="Flow_110w11t" sourceRef="MgrGateway" targetRef="InitalFormRejectedByManagerEvent" />
+    <bpmn:sequenceFlow id="Flow_1ui2o1f" sourceRef="DirectorChecks" targetRef="DirectrorGateway" />
+    <bpmn:intermediateCatchEvent id="BOUDirectorRejectedVerifiedFormEvent" name="Dyrektor BOU odrzucił wniosek">
+      <bpmn:incoming>Flow_11ratrr</bpmn:incoming>
+      <bpmn:outgoing>Flow_1pd2b11</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0spqk4s" messageRef="Message_1j2jmdb" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_1gzc23a" sourceRef="BOUDirectorChecksVerifiedForm" targetRef="BouGateway" />
+    <bpmn:sequenceFlow id="Flow_1pd2b11" sourceRef="BOUDirectorRejectedVerifiedFormEvent" targetRef="InformSenderAboutRejection" />
+    <bpmn:eventBasedGateway id="MgrGateway">
+      <bpmn:incoming>Flow_0xck016</bpmn:incoming>
+      <bpmn:outgoing>Flow_15sa2my</bpmn:outgoing>
+      <bpmn:outgoing>Flow_110w11t</bpmn:outgoing>
+    </bpmn:eventBasedGateway>
+    <bpmn:eventBasedGateway id="DirectrorGateway">
+      <bpmn:incoming>Flow_1ui2o1f</bpmn:incoming>
+      <bpmn:outgoing>Flow_0r15qn0</bpmn:outgoing>
+      <bpmn:outgoing>Flow_104hskd</bpmn:outgoing>
+    </bpmn:eventBasedGateway>
+    <bpmn:eventBasedGateway id="BouGateway">
+      <bpmn:incoming>Flow_1gzc23a</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ligqxt</bpmn:outgoing>
+      <bpmn:outgoing>Flow_11ratrr</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0tvkuma</bpmn:outgoing>
+    </bpmn:eventBasedGateway>
+    <bpmn:sequenceFlow id="Flow_1ligqxt" sourceRef="BouGateway" targetRef="BOUDirectorAcceptedVerifiedFormEvent" />
+    <bpmn:sequenceFlow id="Flow_11ratrr" sourceRef="BouGateway" targetRef="BOUDirectorRejectedVerifiedFormEvent" />
+    <bpmn:intermediateCatchEvent id="TimerEvent" name="Czas na decyzję BOU minał">
+      <bpmn:incoming>Flow_0tvkuma</bpmn:incoming>
+      <bpmn:outgoing>Flow_1omunwa</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_124gi55">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT60S</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_0tvkuma" sourceRef="BouGateway" targetRef="TimerEvent" />
+    <bpmn:sequenceFlow id="Flow_1omunwa" sourceRef="TimerEvent" targetRef="InformSenderAboutRejection" />
+  </bpmn:process>
+  <bpmn:error id="Error_07cuapq" name="ManagerRejected" errorCode="MGRR" />
+  <bpmn:error id="Error_15e7tst" name="BOUDirectorRejected" errorCode="BOUDIRR" />
+  <bpmn:message id="Message_16k745h" name="MGRAPPROVED" />
+  <bpmn:message id="Message_1g7ato3" name="DIRAPPROVED" />
+  <bpmn:message id="Message_1drapzz" name="BOUDIRAPPROVEDVERIFIED" />
+  <bpmn:message id="Message_06xhhw0" name="VERIFICATIONDONE" />
+  <bpmn:message id="Message_03whvzy" name="DIRREJECTED" />
+  <bpmn:message id="Message_03k8ubt" name="MGRREJECTED" />
+  <bpmn:message id="Message_1j2jmdb" name="BOUDIRREJECTEDVERIFIED" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="FormHandlingExtended">
+      <bpmndi:BPMNEdge id="Flow_1omunwa_di" bpmnElement="Flow_1omunwa">
+        <di:waypoint x="1230" y="630" />
+        <di:waypoint x="1000" y="630" />
+        <di:waypoint x="1000" y="580" />
+        <di:waypoint x="770" y="580" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0tvkuma_di" bpmnElement="Flow_0tvkuma">
+        <di:waypoint x="1520" y="355" />
+        <di:waypoint x="1520" y="630" />
+        <di:waypoint x="1268" y="630" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11ratrr_di" bpmnElement="Flow_11ratrr">
+        <di:waypoint x="1520" y="355" />
+        <di:waypoint x="1520" y="490" />
+        <di:waypoint x="1268" y="490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ligqxt_di" bpmnElement="Flow_1ligqxt">
+        <di:waypoint x="1545" y="330" />
+        <di:waypoint x="1612" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pd2b11_di" bpmnElement="Flow_1pd2b11">
+        <di:waypoint x="1232" y="490" />
+        <di:waypoint x="1001" y="490" />
+        <di:waypoint x="1001" y="540" />
+        <di:waypoint x="770" y="540" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1gzc23a_di" bpmnElement="Flow_1gzc23a">
+        <di:waypoint x="1440" y="330" />
+        <di:waypoint x="1495" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ui2o1f_di" bpmnElement="Flow_1ui2o1f">
+        <di:waypoint x="620" y="330" />
+        <di:waypoint x="795" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_110w11t_di" bpmnElement="Flow_110w11t">
+        <di:waypoint x="795" y="190" />
+        <di:waypoint x="738" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15sa2my_di" bpmnElement="Flow_15sa2my">
+        <di:waypoint x="845" y="190" />
+        <di:waypoint x="902" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0xck016_di" bpmnElement="Flow_0xck016">
+        <di:waypoint x="620" y="120" />
+        <di:waypoint x="820" y="120" />
+        <di:waypoint x="820" y="165" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0enct9g_di" bpmnElement="Flow_0enct9g">
+        <di:waypoint x="720" y="208" />
+        <di:waypoint x="720" y="520" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_104hskd_di" bpmnElement="Flow_104hskd">
+        <di:waypoint x="820" y="355" />
+        <di:waypoint x="820" y="402" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0r15qn0_di" bpmnElement="Flow_0r15qn0">
+        <di:waypoint x="845" y="330" />
+        <di:waypoint x="942" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1oq0zjv_di" bpmnElement="Flow_1oq0zjv">
+        <di:waypoint x="820" y="438" />
+        <di:waypoint x="820" y="560" />
+        <di:waypoint x="770" y="560" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0otjnz0_di" bpmnElement="Flow_0otjnz0">
+        <di:waypoint x="720" y="600" />
+        <di:waypoint x="720" y="642" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05ea8xo_di" bpmnElement="DirectorAppliedForm">
+        <di:waypoint x="340" y="335" />
+        <di:waypoint x="340" y="730" />
+        <di:waypoint x="1110" y="730" />
+        <di:waypoint x="1110" y="370" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="682" y="736" width="76" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_086rbde_di" bpmnElement="Flow_086rbde">
+        <di:waypoint x="1810" y="330" />
+        <di:waypoint x="1872" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vzowy9_di" bpmnElement="Flow_1vzowy9">
+        <di:waypoint x="1648" y="330" />
+        <di:waypoint x="1710" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1y0xya6_di" bpmnElement="Flow_1y0xya6">
+        <di:waypoint x="1268" y="330" />
+        <di:waypoint x="1340" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1l4i69q_di" bpmnElement="Flow_1l4i69q">
+        <di:waypoint x="1160" y="330" />
+        <di:waypoint x="1232" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0q6p28s_di" bpmnElement="Flow_0q6p28s">
+        <di:waypoint x="978" y="330" />
+        <di:waypoint x="1060" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18n199a_di" bpmnElement="Flow_18n199a">
+        <di:waypoint x="920" y="208" />
+        <di:waypoint x="920" y="280" />
+        <di:waypoint x="620" y="280" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="786" y="247" width="67" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1g9pg5t_di" bpmnElement="FlowManager">
+        <di:waypoint x="365" y="310" />
+        <di:waypoint x="520" y="310" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="399" y="276" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0c7b7pm_di" bpmnElement="FlowEmployee">
+        <di:waypoint x="340" y="285" />
+        <di:waypoint x="340" y="116" />
+        <di:waypoint x="520" y="116" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="376" y="80" width="85" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ebf1kj_di" bpmnElement="StartFlow">
+        <di:waypoint x="178" y="310" />
+        <di:waypoint x="315" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="Start">
+        <dc:Bounds x="142" y="292" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="125" y="335" width="71" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0u65ips_di" bpmnElement="ManagerChecks">
+        <dc:Bounds x="520" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0sbq0in_di" bpmnElement="JobPositionAssessmentGateway" isMarkerVisible="true">
+        <dc:Bounds x="315" y="285" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="222" y="276" width="55" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_09nwyy6_di" bpmnElement="DirectorChecks">
+        <dc:Bounds x="520" y="270" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0aqhoj0_di" bpmnElement="InitalFormApprovedByDirectorEvent">
+        <dc:Bounds x="942" y="312" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="936" y="355" width="51" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1gemenz_di" bpmnElement="InitalFormApprovedByManagerEvent">
+        <dc:Bounds x="902" y="172" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="894" y="122" width="51" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ikl09k_di" bpmnElement="InformSenderAboutRejection">
+        <dc:Bounds x="670" y="520" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_12j7r0e_di" bpmnElement="EndWithRejection">
+        <dc:Bounds x="702" y="642" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="696" y="685" width="52" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0kwp0ct_di" bpmnElement="SmeChecks">
+        <dc:Bounds x="1060" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_08rjt13_di" bpmnElement="VerificationCompleteEvent">
+        <dc:Bounds x="1232" y="312" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1222" y="355" width="58" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0wv8x98_di" bpmnElement="BOUDirectorChecksVerifiedForm">
+        <dc:Bounds x="1340" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0hqx0ur_di" bpmnElement="BOUDirectorAcceptedVerifiedFormEvent">
+        <dc:Bounds x="1612" y="312" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1598" y="355" width="69" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ecgza8_di" bpmnElement="InformAboutAcceptedForm">
+        <dc:Bounds x="1710" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_16algeb_di" bpmnElement="ProcessEnded">
+        <dc:Bounds x="1872" y="312" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1862" y="355" width="58" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0dirbs5_di" bpmnElement="InitalFormRejectedByDirectorEvent">
+        <dc:Bounds x="802" y="402" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="848" y="406" width="84" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1nyms3x_di" bpmnElement="InitalFormRejectedByManagerEvent">
+        <dc:Bounds x="702" y="172" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="142" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_097tazs_di" bpmnElement="BOUDirectorRejectedVerifiedFormEvent">
+        <dc:Bounds x="1232" y="472" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1210" y="515" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0as9jdk_di" bpmnElement="MgrGateway">
+        <dc:Bounds x="795" y="165" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="794" y="242" width="52" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_05wcvv9_di" bpmnElement="DirectrorGateway">
+        <dc:Bounds x="795" y="305" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="805" y="443" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0uopjvx_di" bpmnElement="BouGateway">
+        <dc:Bounds x="1495" y="305" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1qlpgbn_di" bpmnElement="TimerEvent">
+        <dc:Bounds x="1232" y="612" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1210" y="655" width="81" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

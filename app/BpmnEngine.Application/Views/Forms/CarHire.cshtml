@@ -1,0 +1,45 @@
+﻿@model CarHireViewModel
+@{
+
+}
+<div class="text-center">
+    <h1 class="display-4">@Model.PageTitle</h1>
+</div>
+
+<br/>
+
+<div class="text-center pt-3">
+    <form asp-controller="Forms" asp-action="CarHire" method="post">
+        <div class="row m-1">
+            <div class="col-3 offset-1">
+                <label asp-for="PhoneNumber" class="form-label"></label>
+            </div>
+            <div class="col-3">
+                <input asp-for="PhoneNumber" class="form-control" autocomplete="off"/>
+            </div>
+            <div class="col-3">
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row m-1">
+            <div class="col-3 offset-1">
+                <label asp-for="Destination" class="form-label"></label>
+            </div>
+            <div class="col-3">
+                <input asp-for="Destination" class="form-control" autocomplete="off"/>
+            </div>
+            <div class="col-3">
+                <span asp-validation-for="Destination" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row m-3">
+            <div class="col-3 offset-9">
+                <button class="btn btn-success" type="submit">Wyślij</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

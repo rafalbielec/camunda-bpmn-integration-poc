@@ -1,0 +1,22 @@
+﻿@model FormsViewModel
+@{
+    const string title = "Formularze";
+    Model.PageTitle = title;
+}
+
+<div class="text-center">
+    <h1 class="display-4">@title</h1>
+</div>
+
+<div class="pt-3 text-center">
+    
+    @foreach (var f in Model.Forms)
+    {
+        <div class="row">
+            <div class="col-12 m-2">
+                <a asp-controller="forms" class="btn btn-success col-6" asp-action="@f.ProcessName">@f.Name</a>
+            </div>
+        </div>
+    }
+
+</div>

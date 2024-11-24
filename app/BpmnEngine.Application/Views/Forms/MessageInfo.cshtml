@@ -1,0 +1,48 @@
+﻿@model MessageInfoViewModel
+@{
+    const string title = "Informacje o wysłanej wiadomości";
+    Model.PageTitle = title;
+}
+
+<div class="text-center">
+    <h1 class="display-4">@title</h1>
+</div>
+
+<br/>
+
+<div class="text-center">
+    Wiadomość została wysłana do procesu @Model.BusinessKey
+</div>
+
+<br/>
+
+<div class="pt-3">
+
+    <div class="row">
+        <div class="col-3 offset-3">
+            <strong>Klucz biznesowy</strong>
+        </div>
+        <div class="col-3">
+            @Model.BusinessKey
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-3 offset-3">
+            <strong>Wiadomość</strong>
+        </div>
+        <div class="col-3">
+            @Model.MessageContent
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-3 offset-3">
+            <strong>Type rezultatu z Camunda</strong>
+        </div>
+        <div class="col-3">
+            @Model.ResultType
+        </div>
+    </div>
+
+</div>

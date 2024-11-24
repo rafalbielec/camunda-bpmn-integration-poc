@@ -1,0 +1,39 @@
+﻿@model ProcessInfoViewModel
+@{
+    const string title = "Informacje o procesie";
+    Model.PageTitle = title;
+}
+
+<div class="text-center">
+    <h1 class="display-4">@title</h1>
+</div>
+
+<br/>
+
+<div class="text-center">
+    Wniosek został wysłany
+</div>
+
+<br/>
+
+<div class="pt-3">
+
+    <div class="row">
+        <div class="col-3 offset-3">
+            <strong>Klucz biznesowy</strong>
+        </div>
+        <div class="col-3">
+            @Model.BusinessKey
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-3 offset-3">
+            <strong>Identyfikator procesu</strong>
+        </div>
+        <div class="col-3">
+            @Model.ProcessInstanceId
+        </div>
+    </div>
+
+</div>
